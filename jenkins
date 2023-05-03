@@ -56,7 +56,7 @@ pipeline {
         subject: "Pipeline Status: ${currentBuild.result}",
         body: "Pipeline finished with status: ${currentBuild.result}. Please see attached logs.",
         attachmentsPattern: '**/*.log',
-        to: 'your-email@example.com'
+        to: 'shariq.saleem06@gmail.com'
       )
     }
   }
