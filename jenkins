@@ -46,7 +46,7 @@ pipeline {
     post {
         always {
             // Send notification emails at the end of test and security scan stages
-            emailext body: "Pipeline ${currentBuild.result} - View logs: ${env.BUILD_URL}console",
+            emailext body: "result ${currentBuild.result}",
                 subject: "Pipeline ${currentBuild.result}: ${env.JOB_NAME}",
                 to: "shariq.saleem06@gmail.com",
                 attachmentsPattern: '**/*.log',
