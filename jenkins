@@ -1,63 +1,56 @@
 pipeline {
-  agent any
-  stages {
-    stage('Build') {
-      steps {
-        // Use Maven to build the code
-        sh 'mvn clean package'
-      }
+    agent any
+    
+    environment {
+        DIRECTORY_PATH = "C:/Users/shariq saleem ahmed/Desktop/t123/SIT753"
+        TESTING_ENVIRONMENT = "pipeline-env"
+        PRODUCTION_ENVIRONMENT = "shariq"
     }
-    stage('Unit and Integration Tests') {
-      steps {
-        // Use JUnit and/or TestNG for unit tests, and a tool like Selenium for integration tests
-        sh 'mvn test'
-      }
-    }
-    stage('Code Analysis') {
-      steps {
-        // Use a code analysis tool like SonarQube or Checkstyle to analyze the code
-        // This assumes you have a SonarQube server running at http://localhost:9000
-        withSonarQubeEnv('SonarQube') {
-          sh 'mvn sonar:sonar'
+    
+    stages {
+        stage('Build') {
+            steps {
+                echo "Fetching the source code from ${DIRECTORY_PATH}"
+                echo "Compile the code and generate any necessary artifacts"
+            }
         }
-      }
+        stage('Test') {
+            steps {
+                echo "Running unit tests"
+                echo "Running integration tests"
+            }
+        }
+        stage('Code Quality Check') {
+            steps {
+                echo "Checking the quality of the code"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo "Deploying the application to ${TESTING_ENVIRONMENT}"
+            }
+        }
+        stage('Approval') {
+            steps {
+                echo "Waiting for manual approval"
+                sleep 10
+            }
+        }
+        stage('Deploy to Production') {
+            steps {
+                echo "Deploying the code to ${PRODUCTION_ENVIRONMENT}"
+            }
+        }
     }
-    stage('Security Scan') {
-      steps {
-        // Use a security scanning tool like OWASP ZAP or SonarQube
-        // This assumes you have a ZAP scanner running at http://localhost:8090
-        sh 'mvn -Psecurity -DzapProxyUrl=http://localhost:8090 clean verify'
-      }
+    
+    post {
+        always {
+            // Send notification emails at the end of test and security scan stages
+            emailext body: "Pipeline ${currentBuild.result} - View logs: ${env.BUILD_URL}console",
+                subject: "Pipeline ${currentBuild.result}: ${env.JOB_NAME}",
+                to: "shariq.saleem06@gmail.com",
+                attachmentsPattern: '**/*.log',
+                attachLog: true
+        }
     }
-    stage('Deploy to Staging') {
-      steps {
-        // Use a tool like AWS CLI to deploy the code to a staging server
-        // This assumes you have configured AWS credentials in Jenkins
-        sh 'aws s3 cp myapp.war s3://my-staging-bucket/myapp.war'
-      }
-    }
-    stage('Integration Tests on Staging') {
-      steps {
-        // Use the same integration testing tool as before, but point it to the staging environment
-        sh 'mvn verify -Dtest.env=staging'
-      }
-    }
-    stage('Deploy to Production') {
-      steps {
-        // Use AWS CLI again to deploy the code to a production server
-        sh 'aws s3 cp myapp.war s3://my-production-bucket/myapp.war'
-      }
-    }
-  }
-  post {
-    always {
-      // Send email notifications with status and logs
-      emailext (
-        subject: "Pipeline Status: ${currentBuild.result}",
-        body: "Pipeline finished with status: ${currentBuild.result}. Please see attached logs.",
-        attachmentsPattern: '**/*.log',
-        to: 'shariq.saleem06@gmail.com'
-      )
-    }
-  }
 }
