@@ -4,7 +4,7 @@ pipeline {
     environment {
         DIRECTORY_PATH = "C:/Users/shariq saleem ahmed/Desktop/t123/SIT753"
         TESTING_ENVIRONMENT = "pipeline-env"
-        PRODUCTION_ENVIRONMENT = "shariq"
+        PRODUCTION_ENVIRONMENT = "shariq's evi"
     }
     
     stages {
