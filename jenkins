@@ -1,56 +1,94 @@
 pipeline {
     agent any
-    
-    environment {
-        DIRECTORY_PATH = "C:/Users/shariq saleem ahmed/Desktop/t123/SIT753"
-        TESTING_ENVIRONMENT = "pipeline-env"
-        PRODUCTION_ENVIRONMENT = "shariq"
-    }
-    
     stages {
         stage('Build') {
             steps {
-                echo "Fetching the source code from ${DIRECTORY_PATH}"
-                echo "Compile the code and generate any necessary artifacts"
+                echo 'Building'
             }
         }
-        stage('Test') {
+        stage('Unit and Integration') {
             steps {
-                echo "Running unit tests"
-                echo "Running integration tests"
+                echo 'unit tests in progress'
+            }
+            post {
+                always {
+                    emailext (
+                        subject: 'Unit and Integration',
+                        to: 'shariq.saleem06@gmail.com',
+                        body: "Unit and Integration Tests completed.",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        subject: 'Unit and Integration Tests Status',
+                        to: 'shariq.saleem06@gmail.com',
+                        body: 'Failed to build. Please check logs.',
+                        attachLog: true
+                    )
+                }
             }
         }
-        stage('Code Quality Check') {
+        stage('Code Analysis') {
             steps {
-                echo "Checking the quality of the code"
+                echo 'Analyzing'
             }
         }
-        stage('Deploy') {
+        stage('Security Scan') {
             steps {
-                echo "Deploying the application to ${TESTING_ENVIRONMENT}"
+                echo 'Performing a safety check'
+            }
+            post {
+                always {
+                    emailext (
+                        subject: 'Security Scan Status',
+                        to: 'shariq.saleem06@gmail.com',
+                        body: "Security check completed.",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        subject: 'Security Scan Status',
+                        to: 'shariq.saleem06@gmail.com',
+                        body: 'security check failed. Please check the logs.',
+                        attachLog: true
+                    )
+                }
             }
         }
-        stage('Approval') {
+        stage('Deploy to Staging') {
             steps {
-                echo "Waiting for manual approval"
-                sleep 10
+                echo 'Deploy'
+            }
+        }
+        stage('Integration Tests on Staging') {
+            steps {
+                echo 'Running integration test in the environment'
+            }
+            post {
+                always {
+                    emailext (
+                        subject: 'Integration Tests on Staging Status',
+                        to: 'shariq.saleem06@gmail.com',
+                        body: "Integration Tests on Staging completed.",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        subject: 'Integration Tests on Staging Status',
+                        to: 'shariq.saleem06@gmail.com',
+                        body: 'Failed to run. Please check the logs.',
+                        attachLog: true
+                    )
+                }
             }
         }
         stage('Deploy to Production') {
             steps {
-                echo "Deploying the code to ${PRODUCTION_ENVIRONMENT}"
+                echo 'Deploying'
             }
-        }
-    }
-    
-    post {
-        always {
-            // Send notification emails at the end of test and security scan stages
-            emailext body: "result ${currentBuild.result} ",
-                subject: "Pipeline ${currentBuild.result}: ${env.JOB_NAME}",
-                to: "shariq.saleem06@gmail.com",
-                attachmentsPattern: '**/*.log',
-                attachLog: true
         }
     }
 }
